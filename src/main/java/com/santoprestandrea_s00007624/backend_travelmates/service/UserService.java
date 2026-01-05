@@ -5,6 +5,9 @@ import com.santoprestandrea_s00007624.backend_travelmates.entity.UserRole;
 import com.santoprestandrea_s00007624.backend_travelmates.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.santoprestandrea_s00007624.backend_travelmates.exception.EmailAlreadyExistsException;
+import com.santoprestandrea_s00007624.backend_travelmates.exception.ResourceNotFoundException;
+import java.time.LocalDateTime;
 
 import java.util.Optional;
 import java.util.List;
@@ -21,17 +24,17 @@ public class UserService {
     }
 
     // ===== CREATE =====
-
     /**
-     * Registra un nuovo utente
+     * Registers a new user
      */
     public User registerUser(User user) {
-        // Validazione: email già esistente?
+        // Custom validation with custom exception
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email già registrata: " + user.getEmail());
+            throw new EmailAlreadyExistsException(
+                    "Email already registered: " + user.getEmail());
         }
 
-        // Imposta valori di default
+        // Set default values
         if (user.getRole() == null) {
             user.setRole(UserRole.TRAVELER);
         }
@@ -39,67 +42,61 @@ public class UserService {
             user.setIsActive(true);
         }
 
-        // TODO: Criptare password (vedremo dopo con BCrypt)
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // PASSWORD ENCRYPTION IS STILL MISSING HERE!
 
-        // Salva nel database
         return userRepository.save(user);
     }
 
     // ===== READ =====
+    /**
+     * Finds user by ID or throws exception if not found
+     */
+    public User findByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with ID: " + id));
+    }
 
     /**
-     * Trova utente per ID
+     * Finds user by ID
      */
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    /**
-     * Trova utente per ID o lancia eccezione
-     */
-    public User findByIdOrThrow(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utente non trovato con ID: " + id));
-    }
-
-    /**
-     * Trova utente per email
-     */
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     /**
-     * Trova tutti gli utenti
+     * Finds all users
      */
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
     /**
-     * Trova utenti attivi
+     * Finds active users
      */
     public List<User> findActiveUsers() {
         return userRepository.findByIsActive(true);
     }
 
     /**
-     * Trova utenti per ruolo
+     * Finds users by role
      */
     public List<User> findByRole(UserRole role) {
         return userRepository.findByRole(role);
     }
 
     // ===== UPDATE =====
-
     /**
-     * Aggiorna profilo utente
+     * Updates user profile
      */
     public User updateUser(Long id, User updatedData) {
         User existingUser = findByIdOrThrow(id);
 
-        // Aggiorna solo i campi non nulli
+        // Update only non-null fields
         if (updatedData.getFirstName() != null) {
             existingUser.setFirstName(updatedData.getFirstName());
         }
@@ -119,27 +116,18 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    /**
-     * Aggiorna immagine profilo
-     */
     public User updateProfileImage(Long id, String imageUrl) {
         User user = findByIdOrThrow(id);
         user.setProfileImageUrl(imageUrl);
         return userRepository.save(user);
     }
 
-    /**
-     * Disattiva account (soft delete)
-     */
     public void deactivateUser(Long id) {
         User user = findByIdOrThrow(id);
         user.setIsActive(false);
         userRepository.save(user);
     }
 
-    /**
-     * Riattiva account
-     */
     public void activateUser(Long id) {
         User user = findByIdOrThrow(id);
         user.setIsActive(true);
@@ -147,31 +135,45 @@ public class UserService {
     }
 
     // ===== DELETE =====
-
-    /**
-     * Elimina utente permanentemente (hard delete)
-     */
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("Utente non trovato con ID: " + id);
+            throw new ResourceNotFoundException("User not found with ID: " + id);
         }
         userRepository.deleteById(id);
     }
 
     // ===== UTILITY =====
-
-    /**
-     * Conta tutti gli utenti
-     */
     public long countUsers() {
         return userRepository.count();
     }
 
-    /**
-     * Controlla se email esiste
-     */
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
-}
 
+    /**
+     * SAVE USER (generic)
+     * Used by AuthController to save user after registration
+     */
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    /**
+     * UPDATE LAST LOGIN
+     * Called when user logs in
+     */
+    public void updateLastLogin(Long userId) {
+        User user = findByIdOrThrow(userId);
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    /**
+     * CHECK IF EMAIL EXISTS
+     * Used during registration
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+}
