@@ -1,0 +1,387 @@
+{
+	"info": {
+		"_postman_id": "e4027f0c-082d-46be-b427-5317c1182d4e",
+		"name": "TravelMates - Auth",
+		"description": "Registration and Login Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51255282",
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-e4027f0c-082d-46be-b427-5317c1182d4e?action=share&source=collection_link&creator=51255282"
+	},
+	"item": [
+		{
+			"name": "01 - Register Success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verifica che lo status sia 200 o 201\r",
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"// Verifica che la risposta contenga il token\r",
+							"pm.test(\"Response has token\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('token');\r",
+							"});\r",
+							"\r",
+							"// Verifica che la risposta contenga l'utente\r",
+							"pm.test(\"Response has user data\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.user).to.have.property('id');\r",
+							"    pm.expect(jsonData.user).to.have.property('email');\r",
+							"    pm.expect(jsonData.user.email).to.eql(\"mario.rossy@example.com\");\r",
+							"});\r",
+							"\r",
+							"// SALVA IL TOKEN AUTOMATICAMENTE\r",
+							"if (pm.response.code === 200 || pm.response.code === 201) {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"auth_token\", jsonData.token);\r",
+							"    pm.environment.set(\"user_id\", jsonData.user.id);\r",
+							"    console.log(\" Token salvato:\", jsonData.token);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mario.rossy@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"firstName\": \"Mario\",\r\n    \"lastName\": \"Rossi\",\r\n    \"dateOfBirth\": \"1990-05-15\",\r\n    \"phoneNumber\": \"+393331234567\",\r\n    \"bio\": \"Amante dei viaggi\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Register Short Password (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Password validation error\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.errors).to.have.property('password');\r",
+							"    pm.expect(jsonData.errors.password).to.include(\"at least 8 characters\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"short.password@example.com\",\r\n  \"password\": \"Pass12\",\r\n  \"firstName\": \"Short\",\r\n  \"lastName\": \"Password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Register Missing Email (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validation error for email\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.errors).to.have.property('email');\r",
+							"    pm.expect(jsonData.errors.email).to.include(\"Email is required\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"password\": \"Password123\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Register Duplicate Email (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Questo test DEVE fallire con 409 Conflict\r",
+							"pm.test(\"Status code is 409 Conflict\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mario.rossy@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"firstName\": \"Mario\",\r\n    \"lastName\": \"Rossi\",\r\n    \"dateOfBirth\": \"1990-05-15\",\r\n    \"phoneNumber\": \"+393331234567\",\r\n    \"bio\": \"Amante dei viaggi\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Login Success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has token and user\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('token');\r",
+							"    pm.expect(jsonData).to.have.property('user');\r",
+							"});\r",
+							"\r",
+							"// SALVA IL TOKEN\r",
+							"if (pm.response.code === 200) {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"auth_token\", jsonData.token);\r",
+							"    console.log(\"Login successful, token saved!\");\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"mario.rossy@example.com\",\r\n  \"password\": \"Password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Login Wrong Password (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401 Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message indicates invalid credentials\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.error).to.include(\"Invalid\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"mario.rossy@example.com\",\r\n  \"password\": \"Password1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
