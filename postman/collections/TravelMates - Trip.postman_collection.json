@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "78bd09a5-5dbe-4534-8773-913d47401693",
+		"_postman_id": "cd2afd2c-aa0f-4eed-9e67-295dce123b64",
 		"name": "TravelMates - Trip",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "51255282",
-		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-78bd09a5-5dbe-4534-8773-913d47401693?action=share&source=collection_link&creator=51255282"
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/Santo-Prestandrea's-Workspace~fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-cd2afd2c-aa0f-4eed-9e67-295dce123b64?action=share&source=collection_link&creator=51255282"
 	},
 	"item": [
 		{
@@ -699,6 +699,66 @@
 			"response": []
 		},
 		{
+			"name": "11.5 - Register Second User (for invite tests)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User created successfully\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('user');\r",
+							"    pm.expect(jsonData.user.email).to.eql(\"jane.smith@example.com\");\r",
+							"});\r",
+							"\r",
+							"// SALVA L'ID DEL SECONDO UTENTE\r",
+							"if (pm.response.code === 201) {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"second_user_id\", jsonData.user.id);\r",
+							"    console.log(\"Second User ID salvato:\", jsonData.user.id);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jane.smith@example.com\",\r\n  \"password\": \"Password123!\",\r\n  \"firstName\": \"Jane\",\r\n  \"lastName\": \"Smith\",\r\n  \"dateOfBirth\": \"1992-05-15\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "12- Invite Member To Trip",
 			"event": [
 				{
@@ -719,6 +779,7 @@
 							"if (pm.response.code === 201) {\r",
 							"    var jsonData = pm.response.json();\r",
 							"    pm.environment.set(\"invited_user_id\", jsonData.user.id);\r",
+							"    console.log(\"Invited User ID salvato:\", jsonData.user.id);\r",
 							"}"
 						],
 						"type": "text/javascript",

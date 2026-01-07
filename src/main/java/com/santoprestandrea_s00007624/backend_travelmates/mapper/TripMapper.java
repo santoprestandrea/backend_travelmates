@@ -5,9 +5,13 @@ import com.santoprestandrea_s00007624.backend_travelmates.dto.request.UpdateTrip
 import com.santoprestandrea_s00007624.backend_travelmates.dto.response.*;
 import com.santoprestandrea_s00007624.backend_travelmates.entity.Trip;
 import com.santoprestandrea_s00007624.backend_travelmates.entity.TripMember;
+import com.santoprestandrea_s00007624.backend_travelmates.repository.ActivityRepository;
+import com.santoprestandrea_s00007624.backend_travelmates.repository.DocumentRepository;
+import com.santoprestandrea_s00007624.backend_travelmates.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,15 @@ public class TripMapper {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
 
     // ===== ENTITY → DTO =====
 
@@ -71,8 +84,8 @@ public class TripMapper {
         // Convert members
         List<TripMemberResponse> membersResponse = trip.getMembers() != null
                 ? trip.getMembers().stream()
-                .map(this::toMemberResponse)
-                .collect(Collectors.toList())
+                        .map(this::toMemberResponse)
+                        .collect(Collectors.toList())
                 : List.of();
 
         return TripDetailResponse.builder()
@@ -90,7 +103,7 @@ public class TripMapper {
                 .updatedAt(trip.getUpdatedAt())
                 .durationInDays(trip.getDurationInDays())
                 .members(membersResponse)
-                .statistics(null) // For now null, we'll populate it in PHASE 2
+                .statistics(createStatistics(trip))
                 .build();
     }
 
@@ -178,6 +191,33 @@ public class TripMapper {
         }
     }
 
+    // ===== STATISTICS CALCULATION =====
+
+    /**
+     * Calcola le statistiche per un viaggio
+     */
+    private TripStatisticsResponse createStatistics(Trip trip) {
+        Long tripId = trip.getId();
+
+        // Calcola costo totale spese
+        BigDecimal totalCost = expenseRepository.getTotalExpenses(tripId);
+        if (totalCost == null) {
+            totalCost = BigDecimal.ZERO;
+        }
+
+        // Conta attività
+        Long totalActivities = activityRepository.countByTrip_Id(tripId);
+
+        // Conta documenti
+        Long totalDocuments = documentRepository.countByTrip_Id(tripId);
+
+        return TripStatisticsResponse.builder()
+                .totalExpenses(totalCost)
+                .numberOfActivities(totalActivities != null ? totalActivities.intValue() : 0)
+                .numberOfDocuments(totalDocuments != null ? totalDocuments.intValue() : 0)
+                .build();
+    }
+
     // ===== LIST CONVERSIONS =====
 
     /**
@@ -192,4 +232,3 @@ public class TripMapper {
                 .collect(Collectors.toList());
     }
 }
-

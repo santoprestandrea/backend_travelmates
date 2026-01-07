@@ -4,17 +4,20 @@ package com.santoprestandrea_s00007624.backend_travelmates.controller;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.request.CreateTripRequest;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.request.InviteMemberRequest;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.request.UpdateTripRequest;
+import com.santoprestandrea_s00007624.backend_travelmates.dto.response.TripBalanceResponse;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.response.TripDetailResponse;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.response.TripMemberResponse;
 import com.santoprestandrea_s00007624.backend_travelmates.dto.response.TripResponse;
 import com.santoprestandrea_s00007624.backend_travelmates.entity.*;
 import com.santoprestandrea_s00007624.backend_travelmates.mapper.TripMapper;
+import com.santoprestandrea_s00007624.backend_travelmates.service.ExpenseService;
 import com.santoprestandrea_s00007624.backend_travelmates.service.TripService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +42,9 @@ public class TripController {
 
     @Autowired
     private TripMapper tripMapper;
+
+    @Autowired
+    private ExpenseService expenseService;
 
     // ===== HELPER: GET CURRENT USER ID =====
 
@@ -345,5 +351,19 @@ public class TripController {
         TripMemberResponse response = tripMapper.toMemberResponse(updatedMember);
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * GET /api/trips/{tripId}/balance - CALCULATE TRIP BALANCE
+     *
+     * Returns who owes whom and settlement suggestions.
+     */
+    @GetMapping("/{tripId}/balance")
+    public ResponseEntity<TripBalanceResponse> calculateTripBalance(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal User currentUser) {
+
+        TripBalanceResponse balance = expenseService.calculateTripBalance(tripId, currentUser);
+        return ResponseEntity.ok(balance);
     }
 }

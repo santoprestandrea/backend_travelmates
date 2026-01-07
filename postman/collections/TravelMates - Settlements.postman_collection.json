@@ -1,0 +1,463 @@
+{
+	"info": {
+		"_postman_id": "4ed75df7-acd3-4d0b-a6a9-5c24d21d0ae1",
+		"name": "TravelMates - Settlements",
+		"description": "Collection per testare tutte le API di gestione pagamenti di TravelMates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51255282",
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/Santo-Prestandrea's-Workspace~fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-4ed75df7-acd3-4d0b-a6a9-5c24d21d0ae1?action=share&source=collection_link&creator=51255282"
+	},
+	"item": [
+		{
+			"name": "Create Settlement",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has settlement data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"    pm.expect(jsonData).to.have.property('amount');",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData.status).to.equal('PENDING');",
+							"});",
+							"",
+							"// Salva l'ID del settlement per i test successivi",
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"settlement_id\", jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"toUserId\":2,\"amount\":150.00,\"currency\":\"EUR\",\"notes\":\"Test\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Settlements",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Each settlement has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0]).to.have.property('id');",
+							"        pm.expect(jsonData[0]).to.have.property('fromUser');",
+							"        pm.expect(jsonData[0]).to.have.property('toUser');",
+							"        pm.expect(jsonData[0]).to.have.property('amount');",
+							"        pm.expect(jsonData[0]).to.have.property('status');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Pending Settlements",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"All settlements are PENDING\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    jsonData.forEach(function(settlement) {",
+							"        pm.expect(settlement.status).to.equal('PENDING');",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements?status=PENDING",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "PENDING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User's Outgoing Settlements",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements?fromUserId={{user_id_1}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements"
+					],
+					"query": [
+						{
+							"key": "fromUserId",
+							"value": "{{user_id_1}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User's Incoming Settlements",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements?toUserId={{user_id_2}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements"
+					],
+					"query": [
+						{
+							"key": "toUserId",
+							"value": "{{user_id_2}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mark Settlement as Completed (Unauthorized)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"Error message about permissions\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.error).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{participant_token}}",
+						"type": "text",
+						"description": "Token di un utente non autorizzato"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements/{{settlement_id}}/complete",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements",
+						"{{settlement_id}}",
+						"complete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mark Settlement as Completed (Success)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Settlement is now COMPLETED\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.equal('COMPLETED');",
+							"    pm.expect(jsonData.completedAt).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements/{{settlement_id}}/complete",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements",
+						"{{settlement_id}}",
+						"complete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Optimized Balance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has balance data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('tripId');",
+							"    pm.expect(jsonData).to.have.property('totalExpenses');",
+							"    pm.expect(jsonData).to.have.property('userBalances');",
+							"    pm.expect(jsonData).to.have.property('settlements');",
+							"});",
+							"",
+							"pm.test(\"User balances is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.userBalances).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Settlements is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.settlements).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements/balance",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements",
+						"balance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Settlement",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/settlements/{{settlement_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"settlements",
+						"{{settlement_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

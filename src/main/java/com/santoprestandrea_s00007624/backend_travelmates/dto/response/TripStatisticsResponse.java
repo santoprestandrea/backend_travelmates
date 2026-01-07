@@ -1,6 +1,5 @@
 package com.santoprestandrea_s00007624.backend_travelmates.dto.response;
 
-
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -8,8 +7,7 @@ import java.math.BigDecimal;
 /**
  * DTO - TRIP STATISTICS
  *
- * For now we keep the basic fields.
- * We will populate them in PHASE 2 (when we have expenses).
+ * Statistics about a trip including expenses, activities, and documents.
  *
  * JSON EXAMPLE:
  * {
@@ -26,19 +24,17 @@ import java.math.BigDecimal;
 public class TripStatisticsResponse {
 
     /**
-     * TOTAL EXPENSES (to be implemented in PHASE 2)
+     * TOTAL EXPENSES
      */
     private BigDecimal totalExpenses;
 
     /**
-     * NUMBER OF ACTIVITIES (to be implemented in PHASE 3)
+     * NUMBER OF ACTIVITIES
      */
     private Integer numberOfActivities;
 
     /**
-     * NUMBER OF DOCUMENTS (to be implemented in PHASE 4)
+     * NUMBER OF DOCUMENTS
      */
     private Integer numberOfDocuments;
-
-    // For now we always return null or 0
 }

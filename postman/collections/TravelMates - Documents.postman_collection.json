@@ -1,0 +1,472 @@
+{
+	"info": {
+		"_postman_id": "d59184fb-03fa-40db-8a8a-cb2bc38d7e8e",
+		"name": "TravelMates - Documents",
+		"description": "Collection per testare tutte le API di gestione documenti di TravelMates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51255282",
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/Santo-Prestandrea's-Workspace~fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-d59184fb-03fa-40db-8a8a-cb2bc38d7e8e?action=share&source=collection_link&creator=51255282"
+	},
+	"item": [
+		{
+			"name": "Upload Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has document data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"    pm.expect(jsonData).to.have.property('fileName');",
+							"    pm.expect(jsonData).to.have.property('fileUrl');",
+							"    pm.expect(jsonData).to.have.property('category');",
+							"});",
+							"",
+							"// Salva l'ID del documento per i test successivi",
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"documentId\", jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fileName\": \"Flight Tickets.pdf\",\n    \"fileUrl\": \"https://example.com/documents/flight-tickets.pdf\",\n    \"fileType\": \"application/pdf\",\n    \"fileSize\": 2048576,\n    \"category\": \"TICKET\",\n    \"description\": \"Biglietti aerei per tutti i partecipanti\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Hotel Booking",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fileName\": \"Hotel Reservation.pdf\",\n    \"fileUrl\": \"https://example.com/documents/hotel-reservation.pdf\",\n    \"fileType\": \"application/pdf\",\n    \"fileSize\": 1524288,\n    \"category\": \"BOOKING\",\n    \"description\": \"Prenotazione hotel per 5 notti\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload ID Document",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fileName\": \"Passport Copy.pdf\",\n    \"fileUrl\": \"https://example.com/documents/passport.pdf\",\n    \"fileType\": \"application/pdf\",\n    \"fileSize\": 512000,\n    \"category\": \"ID_DOCUMENT\",\n    \"description\": \"Copia del passaporto\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Each document has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0]).to.have.property('id');",
+							"        pm.expect(jsonData[0]).to.have.property('fileName');",
+							"        pm.expect(jsonData[0]).to.have.property('category');",
+							"        pm.expect(jsonData[0]).to.have.property('uploadedBy');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Documents by Category",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents?category=TICKET",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "TICKET"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Found documents matching search\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0].fileName.toLowerCase()).to.include('flight');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents/search?query=flight",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents",
+						"search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "flight"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Document by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has document details\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"    pm.expect(jsonData).to.have.property('fileUrl');",
+							"    pm.expect(jsonData).to.have.property('uploadedAt');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents/{{document_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents",
+						"{{document_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Document (Unauthorized - Not Uploader)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"Error message about permissions\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.error).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{participant_token}}",
+						"type": "text",
+						"description": "Token di un partecipante che non ha caricato il documento"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents/{{document_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents",
+						"{{document_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Document (Success)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents/{{document_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents",
+						"{{document_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Multiple Documents",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fileName\": \"Travel Insurance.pdf\",\n    \"fileUrl\": \"https://example.com/documents/insurance.pdf\",\n    \"fileType\": \"application/pdf\",\n    \"fileSize\": 3145728,\n    \"category\": \"INSURANCE\",\n    \"description\": \"Polizza assicurativa viaggio\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/documents",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"documents"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

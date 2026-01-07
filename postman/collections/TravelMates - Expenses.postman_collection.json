@@ -1,0 +1,704 @@
+{
+	"info": {
+		"_postman_id": "d3de3ae8-f5a1-4cf5-b367-47fadebac45d",
+		"name": "TravelMates - Expenses",
+		"description": "Test Expense Management (Shared and Personal Expenses)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51255282",
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/Santo-Prestandrea's-Workspace~fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-d3de3ae8-f5a1-4cf5-b367-47fadebac45d?action=share&source=collection_link&creator=51255282"
+	},
+	"item": [
+		{
+			"name": "01 - Create Shared Expense (Equal Split)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has expense data\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData).to.have.property('description');\r",
+							"    pm.expect(jsonData.description).to.eql(\"Cena al ristorante\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Has splits array\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('splits');\r",
+							"    pm.expect(jsonData.splits).to.be.an('array');\r",
+							"    pm.expect(jsonData.splits.length).to.be.at.least(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Split type is EQUAL\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.splitType).to.eql(\"EQUAL\");\r",
+							"});\r",
+							"\r",
+							"// SALVA L'ID DELLA SPESA\r",
+							"if (pm.response.code === 201) {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"expense_id\", jsonData.id);\r",
+							"    console.log(\"Expense ID salvato:\", jsonData.id);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Cena al ristorante\",\n  \"amount\": 120.00,\n  \"currency\": \"EUR\",\n  \"category\": \"FOOD\",\n  \"date\": \"2026-01-05\",\n  \"splitType\": \"EQUAL\",\n  \"participantIds\": [{{user_id}}, {{current_user_id}}],\n  \"notes\": \"Ottima cena italiana\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/shared",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"shared"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Create Shared Expense (Percentage Split)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Split type is PERCENTAGE\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.splitType).to.eql(\"PERCENTAGE\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Splits have percentage values\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.splits[0]).to.have.property('percentage');\r",
+							"    pm.expect(jsonData.splits[0].percentage).to.be.a('number');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Total percentage equals 100\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var totalPercentage = jsonData.splits.reduce((sum, split) => sum + split.percentage, 0);\r",
+							"    pm.expect(totalPercentage).to.eql(100);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Hotel Booking\",\n  \"amount\": 200.00,\n  \"currency\": \"EUR\",\n  \"category\": \"ACCOMMODATION\",\n  \"date\": \"2026-01-04\",\n  \"splitType\": \"PERCENTAGE\",\n  \"splits\": [\n    {\"userId\": {{user_id}}, \"percentage\": 60.00},\n    {\"userId\": {{current_user_id}}, \"percentage\": 40.00}\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/shared",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"shared"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Create Shared Expense (Custom Split)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Benzina auto\",\n  \"amount\": 80.00,\n  \"currency\": \"EUR\",\n  \"category\": \"TRANSPORT\",\n  \"date\": \"2026-01-05\",\n  \"splitType\": \"CUSTOM\",\n  \"splits\": [\n    {\"userId\": {{user_id}}, \"amount\": 50.00},\n    {\"userId\": {{current_user_id}}, \"amount\": 30.00}\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/shared",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"shared"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Create Personal Expense",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has personal expense data\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData).to.have.property('forUser');\r",
+							"    pm.expect(jsonData).to.have.property('paidBy');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Expense is not paid by default\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isPaid).to.eql(false);\r",
+							"});\r",
+							"\r",
+							"// SALVA L'ID DELLA SPESA PERSONALE\r",
+							"if (pm.response.code === 201) {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"personal_expense_id\", jsonData.id);\r",
+							"    console.log(\"Personal Expense ID salvato:\", jsonData.id);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Biglietto treno per Luca\",\n  \"amount\": 35.00,\n  \"currency\": \"EUR\",\n  \"category\": \"TRANSPORT\",\n  \"date\": \"2026-01-03\",\n  \"forUserId\": {{current_user_id}},\n  \"notes\": \"Pagato biglietto per lui\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/personal",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"personal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Get All Trip Expenses",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is array\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"At least one expense exists\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.length).to.be.at.least(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each expense has required fields\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    jsonData.forEach(expense => {\r",
+							"        pm.expect(expense).to.have.property('id');\r",
+							"        pm.expect(expense).to.have.property('description');\r",
+							"        pm.expect(expense).to.have.property('amount');\r",
+							"        pm.expect(expense).to.have.property('category');\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Get Expense By ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/{{expense_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"{{expense_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 - Update Expense",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Cena al ristorante - AGGIORNATO\",\n  \"amount\": 150.00,\n  \"notes\": \"Inclusa mancia\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/{{expense_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"{{expense_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 - Mark Personal Expense as Paid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Expense status changed to paid\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isPaid).to.eql(true);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has expense details\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData).to.have.property('forUser');\r",
+							"    pm.expect(jsonData).to.have.property('paidBy');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/personal/{{personal_expense_id}}/mark-paid",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"personal",
+						"{{personal_expense_id}}",
+						"mark-paid"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09 - Get Trip Balance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has balance structure\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('tripId');\r",
+							"    pm.expect(jsonData).to.have.property('tripTitle');\r",
+							"    pm.expect(jsonData).to.have.property('totalExpenses');\r",
+							"    pm.expect(jsonData).to.have.property('currency');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Has user balances\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('userBalances');\r",
+							"    pm.expect(jsonData.userBalances).to.be.an('object');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Has settlement suggestions\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('settlements');\r",
+							"    pm.expect(jsonData.settlements).to.be.an('array');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/balance",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"balance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Delete Expense",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204 No Content\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/{{expense_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"{{expense_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 - Create Expense Invalid Split (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message indicates validation failure\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.exist;\r",
+							"    pm.expect(jsonData.message.toLowerCase()).to.include('percentage');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Test percentuale errata\",\n  \"amount\": 100.00,\n  \"currency\": \"EUR\",\n  \"category\": \"OTHER\",\n  \"date\": \"2026-01-05\",\n  \"splitType\": \"PERCENTAGE\",\n  \"splits\": [\n    {\"userId\": {{user_id}}, \"percentage\": 60.00},\n    {\"userId\": {{current_user_id}}, \"percentage\": 30.00}\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/{{trip_id}}/expenses/shared",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"{{trip_id}}",
+						"expenses",
+						"shared"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 - Create Expense Not Member (fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error indicates trip not found\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.exist;\r",
+							"    pm.expect(jsonData.message.toLowerCase()).to.include('not found');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Test non autorizzato\",\n  \"amount\": 50.00,\n  \"currency\": \"EUR\",\n  \"category\": \"OTHER\",\n  \"date\": \"2026-01-05\",\n  \"splitType\": \"EQUAL\",\n  \"participantIds\": [{{user_id}}]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/999/expenses/shared",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"999",
+						"expenses",
+						"shared"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

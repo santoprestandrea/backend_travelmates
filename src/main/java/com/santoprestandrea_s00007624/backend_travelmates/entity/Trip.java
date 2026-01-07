@@ -169,6 +169,39 @@ public class Trip {
     }
 
     /**
+     * ACTIVITIES
+     * 
+     * Activities planned for this trip (PHASE 2)
+     * Lazy loading to avoid performance issues
+     */
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Activity> activities = new ArrayList<>();
+
+    /**
+     * DOCUMENTS
+     * 
+     * Documents shared in this trip (PHASE 3)
+     */
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Document> documents = new ArrayList<>();
+
+    /**
+     * SETTLEMENTS
+     * 
+     * Payments between members (PHASE 4)
+     */
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Settlement> settlements = new ArrayList<>();
+
+    /**
+     * NOTES
+     * 
+     * Messages/notes shared in this trip (PHASE 5)
+     */
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TripNote> notes = new ArrayList<>();
+
+    /**
      * CHECK IF THE TRIP IS ACTIVE
      *
      * A trip is active if:

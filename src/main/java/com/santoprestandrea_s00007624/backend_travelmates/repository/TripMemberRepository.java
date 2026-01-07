@@ -1,7 +1,5 @@
 package com.santoprestandrea_s00007624.backend_travelmates.repository;
 
-
-
 import com.santoprestandrea_s00007624.backend_travelmates.entity.MemberRole;
 import com.santoprestandrea_s00007624.backend_travelmates.entity.TripMember;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,6 +42,15 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Long> {
      * IMPORTANT: Returns Optional because it might not exist!
      */
     Optional<TripMember> findByUser_IdAndTrip_Id(Long userId, Long tripId);
+
+    /**
+     * FIND SPECIFIC MEMBER (alternative parameter order)
+     *
+     * Query: SELECT * FROM trip_members WHERE trip_id = ? AND user_id = ?
+     *
+     * IMPORTANT: Returns Optional because it might not exist!
+     */
+    Optional<TripMember> findByTrip_IdAndUser_Id(Long tripId, Long userId);
 
     /**
      * CHECK IF USER IS MEMBER OF A TRIP

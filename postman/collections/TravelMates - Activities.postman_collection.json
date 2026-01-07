@@ -1,0 +1,577 @@
+{
+	"info": {
+		"_postman_id": "c80274b9-a220-4ef5-a9d7-ffce737c9677",
+		"name": "TravelMates - Activities",
+		"description": "Test Activity Management (Create, Update, Delete, List)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51255282",
+		"_collection_link": "https://santo-prestandrea-8636882.postman.co/workspace/Santo-Prestandrea's-Workspace~fdba3e77-0ef1-4dcb-82eb-a16f8ba582cc/collection/51255282-c80274b9-a220-4ef5-a9d7-ffce737c9677?action=share&source=collection_link&creator=51255282"
+	},
+	"item": [
+		{
+			"name": "01 - Create Activity (Colosseum Visit)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has activity ID\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"    pm.environment.set(\"activity_id\", jsonData.id);",
+							"});",
+							"",
+							"pm.test(\"Activity has correct title\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.title).to.eql(\"Visit Colosseum\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Visit Colosseum\",\n    \"description\": \"Guided tour of the ancient Roman amphitheater\",\n    \"scheduledDate\": \"2025-06-15T10:00:00\",\n    \"duration\": 120,\n    \"location\": \"Piazza del Colosseo, 1, Rome\",\n    \"category\": \"SIGHTSEEING\",\n    \"cost\": 25.00,\n    \"currency\": \"EUR\",\n    \"bookingUrl\": \"https://example.com/colosseum-booking\",\n    \"bookingReference\": \"COL123456\",\n    \"isConfirmed\": true,\n    \"notes\": \"Bring ID for student discount\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Create Activity (Restaurant Dinner)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Dinner at Trattoria\",\n    \"description\": \"Traditional Italian dinner\",\n    \"scheduledDate\": \"2025-06-15T19:30:00\",\n    \"duration\": 90,\n    \"location\": \"Via della Scrofa, 32, Rome\",\n    \"category\": \"RESTAURANT\",\n    \"cost\": 45.00,\n    \"currency\": \"EUR\",\n    \"bookingReference\": \"REST789\",\n    \"isConfirmed\": true,\n    \"notes\": \"Table for 4 people\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Create Activity (Flight)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Flight to Rome\",\n    \"description\": \"Direct flight from Paris to Rome\",\n    \"scheduledDate\": \"2025-06-14T08:30:00\",\n    \"duration\": 120,\n    \"location\": \"Charles de Gaulle Airport\",\n    \"category\": \"TRANSPORT\",\n    \"cost\": 120.00,\n    \"currency\": \"EUR\",\n    \"bookingUrl\": \"https://airline.com/booking\",\n    \"bookingReference\": \"FL987654\",\n    \"isConfirmed\": true,\n    \"notes\": \"Gate closes 30 min before departure\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Get All Activities",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Get Activities by Category (SIGHTSEEING)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities?category=SIGHTSEEING",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "SIGHTSEEING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Get Upcoming Activities Only",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities?upcomingOnly=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					],
+					"query": [
+						{
+							"key": "upcomingOnly",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 - Get Activity by ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/{{activity_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"{{activity_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 - Get Upcoming Activities (7 days)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/upcoming",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"upcoming"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09 - Get Confirmed Activities",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/confirmed",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"confirmed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Update Activity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Activity updated successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.cost).to.eql(30.00);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cost\": 30.00,\n    \"notes\": \"Updated: Price increased to 30 EUR\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/{{activity_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"{{activity_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 - Cancel Activity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Activity is cancelled\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.isCancelled).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/{{activity_id}}/cancel",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"{{activity_id}}",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 - Delete Activity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Success message received\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('deleted');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities/{{activity_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities",
+						"{{activity_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13 - Error: Non-Organizer Cannot Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"Error message about permission\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('organizer');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{participant_token}}",
+						"type": "text",
+						"description": "Token of a PARTICIPANT (not ORGANIZER)"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Unauthorized Activity\",\n    \"scheduledDate\": \"2025-06-20T14:00:00\",\n    \"category\": \"OTHER\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "14 - Error: Invalid Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Invalid Activity\",\n    \"scheduledDate\": \"2025-06-20T14:00:00\",\n    \"category\": \"INVALID_CATEGORY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/trips/1/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"trips",
+						"1",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
